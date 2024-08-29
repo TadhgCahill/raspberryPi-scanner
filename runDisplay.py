@@ -51,3 +51,48 @@ disp.image(image, rotation)
 padding = -2
 top = padding
 bottom = height - padding
+# Move left to right keeping track of the current x position for drawing shapes.
+x = 0
+
+
+# Alternatively load a TTF font.  Make sure the .ttf font file is in the
+# same directory as the python script!
+# Some other nice fonts to try: http://www.dafont.com/bitmap.php
+font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+
+# Turn on the backlight
+#backlight = digitalio.DigitalInOut(board.D22)
+#backlight.switch_to_output()
+#backlight.value = True
+
+
+buttonA = digitalio.DigitalInOut(board.D23)
+buttonB = digitalio.DigitalInOut(board.D24)
+buttonA.switch_to_input()
+buttonB.switch_to_input()
+
+while True:
+    # Draw a black filled box to clear the image.
+    draw.rectangle((0, 0, width, height), outline=0, fill=0)
+
+    if not buttonA.value and not buttonB.value:
+        subprocess.Popen('sudo shutdown now', shell=True)
+
+
+    cmd = "python3 magnetizer.py"
+    X = subprocess.check_output(cmd, shell=True).decode("utf-8")
+
+    cmd = "python3 weather.py"
+    Temp = subprocess.check_output(cmd, shell=True).decode("utf-8")
+
+    # Write four lines of text.
+    y = top
+    draw.text((x, y), X, font=font, fill="#FF00FF")
+    y += font.getsize(Temp)[1]
+
+    draw.text((x, y), Temp, font=font, fill="#FFFFFF")
+#    y += font.getsize(Temp)[1]
+
+    # Display image.
+    disp.image(image, rotation)
+    time.sleep(.1)
